@@ -127,7 +127,7 @@ WantedBy=multi-user.target
 
 </blockquote>
 
-## Шаг 3. Настройка Prometheus
+## Шаг 3.  Установка Prometheus и первоначальная настройка.
 
 Cкачиваем архив с утилитой Prometheus при помощи утилиты `wget`:
 
@@ -151,7 +151,94 @@ https://prometheus.io/download/#prometheus
 
 `$ tar xvf prometheus-*.*-amd64.tar.gz`
 
+### Конфигурация файлов
+
 Заходим в дирректорию с распакованным `Prometheus`:
 
 `$ cd prometheus-*/`
+
+Создадим 2 дирректории
+
+`$ sudo mkdir /etc/prometheus`
+
+`$ sudo mkdir /var/lib/prometheus`
+
+Скопируем конфигурацию Prometheus
+
+`$ sudo cp prometheus.yml /etc/prometheus/`
+
+Скопируем исполняемые файлы
+
+`$ sudo cp prometheus /usr/local/bin/`
+
+`$ sudo cp promtool /usr/local/bin/`
+
+Скопируем библиотеки и консоли
+
+`$ sudo cp -r consoles/ /etc/prometheus`
+
+`$ sudo cp -r console_libraries/ /etc/prometheus`
+
+### Инициализация конфигурации
+
+Откроем файл основной конфигурации prometheus и заполним контентом указанным ниже:
+
+`$ sudo nano /etc/prometheus/prometheus.yml`
+
+```
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+#=================================================
+# OK DONT TOUCH!!!!!!!!!! THATS MAIN CONFIG!
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9090"]
+# DONT TOUCH ENDS
+#=================================================
+
+  - job_name: 'node'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['localhost:9100']
+```
+
+### Добавление пользователя и смена прав
+
+Для смены прав на дирректории и создания демона потребуется новый пользователь
+
+`Debian: $ sudo adduser --system --no-create-home --group --shell /sbin/nologin prometheus`
+
+`RHEL: $ sudo adduser -M -r -s /sbin/nologin prometheus`
+
+Теперь можно сменить права на дирректории с файлами Prometheus которые мы переносили ранее.
+
+`$ sudo chown prometheus:prometheus /etc/prometheus`
+
+`$ sudo chown prometheus:prometheus /var/lib/prometheus`
+
+## Шаг 4. Создание демона Prometheus.
 
