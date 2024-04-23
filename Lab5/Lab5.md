@@ -242,3 +242,54 @@ scrape_configs:
 
 ## Шаг 4. Создание демона Prometheus.
 
+Запишем конфигурацию нового демона
+
+`sudo nano /etc/systemd/system/prometheus.service`
+
+```
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+    --config.file /etc/prometheus/prometheus.yml \
+    --storage.tsdb.path /var/lib/prometheus/ \
+    --web.console.templates=/etc/prometheus/consoles \
+    --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Перезагрузим список доступных демонов:
+
+`sudo systemctl daemon-reload`
+
+Запустим демона 
+
+`sudo systemctl start prometheus`
+
+Включим демон в автозагрузку
+
+`sudo systemctl enable prometheus`
+
+И проверим что демон работает
+
+`sudo systemctl status prometheus`
+
+Теперь можно проверить действительно ли данные мониторинга отправляются от демона, для этого заходим в браузер и переходим на страницу:
+
+`localhost:9090`
+
+Перейдя в Status -> Targets мы можем увидеть:
+
+```
+http://localhost:9100/metrics      UP
+```
+
+Что обозначает что Node Exporter и Prometheus работают.
