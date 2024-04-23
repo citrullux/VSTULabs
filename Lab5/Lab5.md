@@ -81,6 +81,14 @@ ExecStart=/usr/local/bin/node_exporter
 WantedBy=multi-user.target
 ```
 
+Для созданного демона потребуется пользователь
+
+`Debian: $ sudo adduser --system --no-create-home --group --shell /sbin/nologin node_exporter`
+
+`RHEL: $ sudo adduser -M -r -s /sbin/nologin node_exporter`
+
+> Тут я не полностью уверен в том что команда для Debian написана оптимально, но это работает
+
 После создания и заполнения файла перезагрузим список доступных демонов:
 
 `sudo systemctl daemon-reload`
