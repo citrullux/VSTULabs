@@ -32,7 +32,7 @@ https://prometheus.io/download/#node_exporter
 
 Заходим в дирректорию с распакованным `node_exporter`:
 
-`$ cd node_exporter-*.*-amd64`
+`$ cd node_exporter-*/`
 
 И пробуем запустить прямо в консоли.
 
@@ -129,4 +129,29 @@ WantedBy=multi-user.target
 
 ## Шаг 3. Настройка Prometheus
 
+Cкачиваем архив с утилитой Prometheus при помощи утилиты `wget`:
+
+`$ wget https://github.com/prometheus/prometheus/releases/download/v2.51.2/prometheus-2.51.2.linux-amd64.tar.gz`
+
+<blockquote>
+
+Если это не сработало, то попробуйте найти текущую версию пакета на данном сайте:
+
+https://prometheus.io/download/#prometheus
+
+И обновите команду скопировав ссылку с файла скачивания для архитектуры `linux-amd64`. 
+
+> Hint: Копировать ссылку можно нажав на название файла на сайте правой кнопкой
+
+Если эта команда и после изменений ничего не скачает, то можно написать в Issues данного репозитория
+
+</blockquote>
+
+Распакуем полученный архив при помощи `tar`:
+
+`$ tar xvf prometheus-*.*-amd64.tar.gz`
+
+Заходим в дирректорию с распакованным `Prometheus`:
+
+`$ cd prometheus-*/`
 
