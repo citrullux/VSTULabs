@@ -244,7 +244,7 @@ scrape_configs:
 
 Запишем конфигурацию нового демона
 
-`sudo nano /etc/systemd/system/prometheus.service`
+`$ sudo nano /etc/systemd/system/prometheus.service`
 
 ```
 [Unit]
@@ -268,19 +268,19 @@ WantedBy=multi-user.target
 
 Перезагрузим список доступных демонов:
 
-`sudo systemctl daemon-reload`
+`$ sudo systemctl daemon-reload`
 
 Запустим демона 
 
-`sudo systemctl start prometheus`
+`$ sudo systemctl start prometheus`
 
 Включим демон в автозагрузку
 
-`sudo systemctl enable prometheus`
+`$ sudo systemctl enable prometheus`
 
 И проверим что демон работает
 
-`sudo systemctl status prometheus`
+`$ sudo systemctl status prometheus`
 
 Теперь можно проверить действительно ли данные мониторинга отправляются от демона, для этого заходим в браузер и переходим на страницу:
 
@@ -293,3 +293,199 @@ http://localhost:9100/metrics      UP
 ```
 
 Что обозначает что Node Exporter и Prometheus работают.
+
+## Шаг 5. Установка Grafana
+
+> Тут методы для Debian-подобных и RHEL подобных очень сильно расходятся, распишу их отдельно друг за другом.
+
+### Установка на Debian-based
+
+Устанавливаем необходимые пакеты
+
+`Debian: $ sudo apt-get install -y adduser libfontconfig1 musl`
+
+Забираем собранный deb пакет с сайта Grafana
+
+`Debian: $ wget https://dl.grafana.com/oss/release/grafana_10.4.2_amd64.deb`
+
+<blockquote>
+
+Пакет имеет формат deb так как предназначается для Debian-подобных систем... Нейминг!
+
+</blockquote>
+
+Устанавливаем deb пакет
+
+`Debian: $ sudo dpkg -i grafana_10.4.2_amd64.deb`
+
+<blockquote>
+
+Кстати, в конце установки dpkg выдаст:
+
+NOT starting on installation, please execute the following statements to configure grafana to start automatically using systemd
+
+$ sudo /bin/systemctl daemon-reload
+
+$ sudo /bin/systemctl enable grafana-server
+
+You can start grafana-server by executing
+
+$ sudo /bin/systemctl start grafana-server
+
+Это прямая инструкция к запуску, даже методичка не нужна =_=
+
+</blockquote>
+
+### Установка на RHEL-based
+
+RHEL чуть более брутален:
+
+`RHEL: $ sudo yum install -y https://dl.grafana.com/oss/release/grafana-10.4.2-1.x86_64.rpm`
+
+> That's all folks!
+
+### Конфигурация
+
+Немного изменим файл конфигурации
+
+`sudo nano /etc/grafana/grafana.ini`
+
+Нужно найти категорию [server] и раскомментировать следующие строки
+
+```
+[server]
+
+# The IP address to bind to, empty will bind to all interfaces
+http_addr = localhost
+
+# The http port  to use
+http_port = 3000
+```
+### Включение
+
+Перезагрузим список демонов
+
+`$ sudo /bin/systemctl daemon-reload`
+
+Добавим демона в автозапуск
+
+`$ sudo /bin/systemctl enable grafana-server`
+
+Включим
+
+`$ sudo /bin/systemctl start grafana-server`
+
+И проверим включился ли, если светится зелёным надпись active - то всё сделано верно.
+
+`$ sudo /bin/systemctl status grafana-server`
+
+# Шаг 6. Работа с Grafana
+
+Теперь можно проверить действительно ли Grafana работает, для этого заходим в браузер и переходим на страницу:
+
+`localhost:3000`
+
+Стандартным логином является `admin` с паролем `admin`.
+
+Вам сразу же будет предложено сменить пароль, сделайте это и запомните новый пароль.
+
+На главной странице будет 
+
+```
+Data Source 
+
+Add Your first Data Source
+```
+
+Нам сюда. Выбираем Prometheus.
+
+В меню Connection вводим
+
+`http://localhost:9090`
+
+Проматываем вниз страницы, жмём save and test.
+
+Если получаем в ответ
+
+```
+Successfully queried the Prometheus API.
+```
+
+То переходим в Home (верхняя левая часть страницы) и жмём в верхней правой части страницы на кнопку + и добавляем новый Dashboard.
+
+### Первая метрика
+
+Оказавшись на новой странице добавляем Визуализацию выбирая Prometheus.
+
+Для Query выберите режим Code (справа) и впишите в окно редактирование кода
+
+`(1-(sum(increase(node_cpu_seconds_total{instance="localhost:9100", mode="idle"}[1m])) / sum(increase(node_cpu_seconds_total{instance="localhost:9100"}[1m]))))*100`
+
+Пояснения к формуле будут потом.
+
+Раскройте подменю Options (слева снизу) и впишите:
+`localhost` или любое другое имя на ваше усмотрение.
+
+![Конфигурация](./Images/prometheus_grafana.png)
+
+С правой стороны можно обозначить заголовок (Tile): CPU Load
+
+Проматывая вниз в меню Axis можно установить 
+
+`Soft Min = 0`
+
+`Soft Max = 100`
+
+![Min Max](./Images/soft_min_max.png)
+
+ В Standart Options можно увидеть Unit (выберите Misc -> Percent(0-100))
+
+Можно также их искать при помощи Search option.
+
+Теперь можно нажать на кнопку Apply, а в открывшемся Dashboard на иконку сохранения. И назвать Dashboard как-нибудь.
+
+![Final dashboard](./Images/ready_dashboard.png)
+
+<blockquote>
+
+Рядом с кнопкой обновления есть стрелочка вниз которая позволяет установить автообновление всей статистики приведённой на странице через определённые промежутки времени.
+
+![alt text](./Images/refresh.png)
+
+</blockquote>
+
+## Индивидуальные задания
+
+> Cоответствует остатку от операции деления вашего номера зачётной книжки на 5, где получение результата 0, обозначает что у вас 5 вариант
+
+1.	Напишите метрику grafana которая позволит узнать скорость передачи данных по сети
+2.	Напишите метрику grafana которая позволит узнать процент занятой ОЗУ
+3.	Напишите метрику grafana которая позволит узнать скорость передачи данных к диску
+4.	Напишите метрику grafana которая позволит узнать процент занятого места на диске
+5.	Напишите метрику grafana которая позволит узнать общее количество переданных данных по сети.
+
+> Для тех кто делает в WSL - данные для основной системы Windows и Linux внутри WSL разнятся.
+
+## Пояснение к формуле из шага 6
+
+Итак перед нами есть вот такая конструкция:
+
+`(1-(sum(increase(node_cpu_seconds_total{instance="localhost:9100", mode="idle"}[1m])) / sum(increase(node_cpu_seconds_total{instance="localhost:9100"}[1m]))))*100`
+
+Здесь 
+
+`node_cpu_seconds_total` - определяет количество секунд которые процессор потратил на что либо.
+
+`node_cpu_seconds_total{instance="localhost:9100"}` - определяет что мы пытаемся смотреть на процессор именно на нашем компьютере в node_exporter.
+
+`node_cpu_seconds_total{instance="localhost:9100", mode="idle"}`- добавление режима idle обозначает что я хочу увидеть сколько по времени процессор простаивал.
+
+`increase(node_cpu_seconds_total{instance="localhost:9100", mode="idle"}[1m])` Добавление параметра `increase()[1m]` подразумевает что я хочу знать сколько процессор простаивал (и сколько он всего потратил секунд) за последнюю минуту, а не за всё время от включения компьютера, так как иначе будет показываться не текущая нагрузка, а усреднённая нагрузка компьютера со времени включения.
+
+Не помню зачем накидывал `sum()`, возможно без него не работало `:)` А если что-то работает, то не трогай.
+
+`sum(increase(node_cpu_seconds_total{instance="localhost:9100", mode="idle"}[1m])) / sum(increase(node_cpu_seconds_total{instance="localhost:9100"}[1m]))` - деление одного на другое позволяет узнать сколько времени в долях единицы процессор простаивал. Если он простаивал 80 процентов времени, то показатель будет `0.8`
+
+`1-(sum(increase(node_cpu_seconds_total{instance="localhost:9100", mode="idle"}[1m])) / sum(increase(node_cpu_seconds_total{instance="localhost:9100"}[1m])))` - а вычитание из 1 полученного ранее значения даст нам как раз долю единицы времени когда процессор не простаивал (то есть что-то делал!)
+
+Ну и домножение всего этого на 100 нужно чтобы получить нагрузку в процентах, так всё это и работает.
