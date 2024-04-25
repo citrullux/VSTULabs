@@ -18,7 +18,7 @@ Cкачиваем архив с утилитой node exporter при помощ
 
 https://prometheus.io/download/#node_exporter
 
-И обновите команду скопировав ссылку с файла скачивания для архитектуры `linux-amd64`. 
+И обновите команду скопировав ссылку с файла скачивания для архитектуры `linux-amd64`.
 
 > Hint: Копировать ссылку можно нажав на название файла на сайте правой кнопкой
 
@@ -101,7 +101,7 @@ WantedBy=multi-user.target
 
 `sudo systemctl daemon-reload`
 
-Запустим демона 
+Запустим демона
 
 `sudo systemctl start node_exporter`
 
@@ -139,7 +139,7 @@ Cкачиваем архив с утилитой Prometheus при помощи 
 
 https://prometheus.io/download/#prometheus
 
-И обновите команду скопировав ссылку с файла скачивания для архитектуры `linux-amd64`. 
+И обновите команду скопировав ссылку с файла скачивания для архитектуры `linux-amd64`.
 
 > Hint: Копировать ссылку можно нажав на название файла на сайте правой кнопкой
 
@@ -270,7 +270,7 @@ WantedBy=multi-user.target
 
 `$ sudo systemctl daemon-reload`
 
-Запустим демона 
+Запустим демона
 
 `$ sudo systemctl start prometheus`
 
@@ -293,6 +293,13 @@ http://localhost:9100/metrics      UP
 ```
 
 Что обозначает что Node Exporter и Prometheus работают.
+
+Теперь можно удалить более ненужные файлы
+
+`$ cd ~`
+
+`$ rm -rf prometheus*`
+
 
 ## Шаг 5. Установка Grafana
 
@@ -365,19 +372,19 @@ http_port = 3000
 
 Перезагрузим список демонов
 
-`$ sudo /bin/systemctl daemon-reload`
+`$ sudo systemctl daemon-reload`
 
 Добавим демона в автозапуск
 
-`$ sudo /bin/systemctl enable grafana-server`
+`$ sudo systemctl enable grafana-server`
 
 Включим
 
-`$ sudo /bin/systemctl start grafana-server`
+`$ sudo systemctl start grafana-server`
 
 И проверим включился ли, если светится зелёным надпись active - то всё сделано верно.
 
-`$ sudo /bin/systemctl status grafana-server`
+`$ sudo systemctl status grafana-server`
 
 # Шаг 6. Работа с Grafana
 
@@ -389,10 +396,10 @@ http_port = 3000
 
 Вам сразу же будет предложено сменить пароль, сделайте это и запомните новый пароль.
 
-На главной странице будет 
+На главной странице будет
 
 ```
-Data Source 
+Data Source
 
 Add Your first Data Source
 ```
@@ -430,7 +437,7 @@ Successfully queried the Prometheus API.
 
 С правой стороны можно обозначить заголовок (Tile): CPU Load
 
-Проматывая вниз в меню Axis можно установить 
+Проматывая вниз в меню Axis можно установить
 
 `Soft Min = 0`
 
@@ -454,6 +461,18 @@ Successfully queried the Prometheus API.
 
 </blockquote>
 
+Можно подать нагрузку на процессор следующим образом:
+
+Установим программу-бенчмарк.
+
+`Debian: $ sudo apt install dbench`
+
+`RHEL: $ sudo yum install dbench`
+
+Запустим бенчмарк.
+
+`$ dbench 1000 -t 500`
+
 ## Индивидуальные задания
 
 > Cоответствует остатку от операции деления вашего номера зачётной книжки на 5, где получение результата 0, обозначает что у вас 5 вариант
@@ -472,7 +491,7 @@ Successfully queried the Prometheus API.
 
 `(1-(sum(increase(node_cpu_seconds_total{instance="localhost:9100", mode="idle"}[1m])) / sum(increase(node_cpu_seconds_total{instance="localhost:9100"}[1m]))))*100`
 
-Здесь 
+Здесь
 
 `node_cpu_seconds_total` - определяет количество секунд которые процессор потратил на что либо.
 
