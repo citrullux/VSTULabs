@@ -474,6 +474,7 @@ total 24
 Давайте вернёмся в наш редактор и продолжим изменять файл `main.sh`
 
 ```
+#!/bin/bash
 SCRIPT=$(readlink -f "$0")
 DIR=$(dirname "$SCRIPT")
 
@@ -485,9 +486,11 @@ echo "Hello world!" > world
 ln world flat
 ln -s world globe
 
-cat globe > ../outputs/links
+cat world > ../outputs/links
+cat flat >> ../outputs/links
+cat globe >> ../outputs/links
 ls -la >> ../outputs/links
 ```
 
-Исполним файл `$ sh scripts/main.sh`
+Сохраним и исполним файл `$ sh scripts/main.sh`
 
