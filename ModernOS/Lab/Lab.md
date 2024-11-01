@@ -475,22 +475,114 @@ total 24
 
 ```
 #!/bin/bash
-SCRIPT=$(readlink -f "$0")
-DIR=$(dirname "$SCRIPT")
+SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
+DIR=$(dirname "$SCRIPT") # Директория нахождения скрипта
 
-cd $DIR
-cd ..
-mkdir data
+cd $DIR # Переход в директорию скрипта
+cd .. # Переход в директорию проекта
+
+# Создаём директорию и переходим в неё
+mkdir -p data
 cd data
-echo "Hello world!" > world
-ln world flat
-ln -s world globe
+echo "Hello world!" > world # Создаём файл с названием world
+ln -f world flat # Создаём жёсткую ссылку
+ln -s -f world globe # Создаём мягкую ссылку
 
+# Читаем содержимое файлов в файл links
 cat world > ../outputs/links
 cat flat >> ../outputs/links
 cat globe >> ../outputs/links
-ls -la >> ../outputs/links
+# Просматриваем состав директории
+ls -lai >> ../outputs/links
 ```
 
 Сохраним и исполним файл `$ sh scripts/main.sh`
+
+Теперь изменим файл `main.sh` следующим образом:
+
+```
+#!/bin/bash
+SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
+DIR=$(dirname "$SCRIPT") # Директория нахождения скрипта
+
+cd $DIR # Переход в директорию скрипта
+cd .. # Переход в директорию проекта
+cd data
+
+echo "Place where human lives" > world # Изменяем данные в файле world
+
+# Читаем содержимое файлов в файл links
+cat world >> ../outputs/links
+cat flat >> ../outputs/links
+cat globe >> ../outputs/links
+
+echo "Is this flat?" > flat # Изменяем данные в файле flat
+
+# Читаем содержимое файлов в файл links
+cat world >> ../outputs/links
+cat flat >> ../outputs/links
+cat globe >> ../outputs/links
+
+echo "Think different" > globe # Изменяем данные в файле globe
+
+# Читаем содержимое файлов в файл links
+cat world >> ../outputs/links
+cat flat >> ../outputs/links
+cat globe >> ../outputs/links
+```
+
+Сохраним и исполним файл `$ sh scripts/main.sh`
+
+Снова изменим файл `main.sh`
+
+```
+#!/bin/bash
+SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
+DIR=$(dirname "$SCRIPT") # Директория нахождения скрипта
+
+cd $DIR # Переход в директорию скрипта
+cd .. # Переход в директорию проекта
+cd data
+
+echo "Ready to destroy" > world # Изменяем данные в файле world
+rm world # Удаляем файл
+cat flat >> ../outputs/links
+cat globe >> ../outputs/links
+
+# Просматриваем состав директории
+ls -lai >> ../outputs/links
+```
+
+Сохраним и исполним файл `$ sh scripts/main.sh`
+
+Скорее всего в результате выполнения будет выдана ошибка:
+`cat: globe: No such file or directory`
+
+#### Разбор практического блока
+___
+
+Откройте в директории `data` файл `links`.
+
+По результатам выполнения практического блока, в файле находятся следующие строки:
+
+```
+Hello world!
+Hello world!
+Hello world!
+```
+первые 3 строки содержат в себе надпись "Hello world!". Это результат выполнения команд:
+
+```
+cat world > ../outputs/links
+cat flat >> ../outputs/links
+cat globe >> ../outputs/links
+```
+
+Которые считывают данные из 3 файлов, world, flat и globe, далее обозначена выдача команды `ls -lai` в которой нас интересуют следующие строки:
+
+```
+28332 -rw-r--r-- 2 citrullux citrullux   13 Nov  1 16:11 flat
+35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
+28332 -rw-r--r-- 2 citrullux citrullux   13 Nov  1 16:11 world
+```
 
