@@ -760,8 +760,32 @@ ___
 ```
 #!/bin/bash
 
+SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
+DIR=$(dirname "$SCRIPT") # Директория нахождения скрипта
 
+cd $DIR # Переход в директорию скрипта
+cd .. # Переход в директорию проекта
+cd data
+
+# Изменяем права
+chmod 777 flat
+chmod 300 world
+
+# Записываем данные
+echo "This is not a planet?" > world
+
+# Пытаемся считывать данные
+cat flat > ../outputs/links
+cat world >> ../outputs/links
+
+ls -lai >> ../outputs/links
 ```
+Сохраним и исполним файл `$ sh scripts/main.sh`
+
+Выполнение выведет ошибку:
+
+`cat: world: Permission denied`
+
 
 
 ## Глава 5 - Службы в Linux
