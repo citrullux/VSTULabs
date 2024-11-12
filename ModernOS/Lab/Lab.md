@@ -828,13 +828,143 @@ ls -lai ../scripts/ >> ../outputs/links
 
 `cat: flat: Permission denied`
 
+---
 
+Для __дальнейшего выполнения__ данного практического блока __потребуются__ права <font color="#FF8822">уровня суперпользователя</font> чтобы использовать `sudo`
+
+Или работать от пользователя `root` если вы любите уничтожать свою систему или понимаете что вы делаете.
+
+Выполните в терминале команду:
+
+`$ sudo echo "Hello"`
+
+Вы получите запрос вашего пароля, если текущая настройка `/etc/sudoers` требует ввода пароля для использования прав `sudo` для вашего пользователя или группы, в которую он входит.
+
+---
+
+Изменим файл `main.sh`
+
+```
+#!/bin/bash
+
+SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
+DIR=$(dirname "$SCRIPT") # Директория нахождения скрипта
+
+cd $DIR # Переход в директорию скрипта
+cd .. # Переход в директорию проекта
+cd data
+
+# Изменяем владельцев файлов
+chown root:root flat
+chown root:root world
+
+# Изменяем права
+chmod 007 flat
+chmod 770 world
+
+# Записываем данные
+echo "How much continents?" > world
+echo "We are number one, but..." > flat
+
+# Пытаемся считывать данные
+cat flat >> ../outputs/links
+cat world >> ../outputs/links
+cat globe >> ../outputs/links
+
+# Вывод содержимого директорий
+ls -lai >> ../outputs/links
+```
+И выполним скрипт, теперь без `sh`, так как с прошлого исполнения файл можно исполнять сам по себе.
+
+`sudo ./scripts/main.sh`
+
+```
+#!/bin/bash
+
+SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
+DIR=$(dirname "$SCRIPT") # Директория нахождения скрипта
+
+cd $DIR # Переход в директорию скрипта
+cd .. # Переход в директорию проекта
+cd data
+
+# Записываем данные
+echo "Time to listen" > world
+echo "The greatest show on earth" > flat
+
+# Пытаемся считывать данные
+cat flat >> ../outputs/links
+cat world >> ../outputs/links
+cat globe >> ../outputs/links
+
+# Вывод содержимого директорий
+ls -lai >> ../outputs/links
+```
+
+Давайте выполним без `sudo`
+
+`./scripts/main.sh`
+
+И получим в консоли:
+
+`./scripts/main.sh: line 11: world: Permission denied`
+
+`cat: world: Permission denied`
+
+`cat: globe: Permission denied`
 
 #### Разбор задания
 ---
 Откройте в директории `data` файл `links`.
 
+Выдача первой стадии исполнения.
+```
+Ready to destroy
+28332 -rwxrwxrwx 1 citrullux citrullux   17 Nov  1 17:44 flat
+35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
+28698 --wx------ 1 citrullux citrullux   22 Nov  8 09:22 world
+```
+Содержимое файла `flat` было выведено. Содержимое файла `world` было изменено на `This is not a planet?`, но вывести в файл содержимое не получилось, так как прав на чтение `r` у пользователя нет, есть только `wx`. Потому в консоль было выведено:
 
+`cat: world: Permission denied`
+
+Выдача второй стадии:
+
+```
+This is not a planet?
+28332 ----rwx--- 1 citrullux citrullux   17 Nov  1 17:44 flat
+35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
+28698 -r-------- 1 citrullux citrullux   22 Nov  8 09:22 world
+97252 -rwxr-xr-x 1 citrullux citrullux  756 Nov  8 10:09 main.sh
+```
+
+Теперь у файла `world` есть права на чтение, и мы смогли его прочитать. Но записать в него новые данные не получится. Файл `main.sh` получил возможность исполнения `x` посредством команды `chmod +x` то есть `+` это добавление, а `x` конкретное право, в данном случае исполнение, как можно понять право на исполнение было добавлено для всех уровней прав.
+
+Файл `flat` для группы `citrullux` имеет все права, но ни записать ни считать данные от пользователя `citrullux` не получилось, по очень простой причине: права пользователя важнее прав группы. А права пользователя говорят что возможностей чтения и записи нет.
+
+Выдача третей стадии:
+
+```
+We are number one, but...
+How much continents?
+How much continents?
+28332 -------rwx 1 root      root        26 Nov 12 13:14 flat
+35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
+28698 -rwxrwx--- 1 root      root        21 Nov 12 13:14 world
+```
+
+Поскольку мы исполняем скрипт от `sudo`, мы смогли записать новое содержимое в файлы `world` и `flat`, не смотря на то что мы передали владение файлами пользователю `root` и группе `root`. Ошибок при исполнении на этой стадии не было.
+
+Выдача четвёртой стадии:
+
+```
+The greatest show on earth
+28332 -------rwx 1 root      root        27 Nov 12 13:22 flat
+35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
+28698 -rwxrwx--- 1 root      root        21 Nov 12 13:14 world
+```
+
+Тут мы смогли записать и прочитать содержимое только файла `flat`, так как наш пользователь не относится к пользователю `root` и не входит в группу `root`. Файл `globe` как ссылка в теории может быть прочитан нашим пользователем, но указывает он на файл `world`, который недоступен для обычного пользователя, так что содержимое ээтих файлов обычному пользователю недоступно.
 
 
 ## Глава 5 - Службы в Linux
