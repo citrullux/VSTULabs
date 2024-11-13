@@ -264,15 +264,13 @@ C:/ProgramFiles ->
 
 Можно открыть файл `when` и посмотреть на данные внутри файла.
 
-Зайдём в файл `main.sh` в VSCode и запишем в него следующее:
-
+Откроем файл `main.sh` в VSCode и запишем в него следующее:
 ```
 #!/bin/bash
 
 uname -a > ./when
 date >> ./when
 ```
-
 Это скрипт, который используя среду исполнения /bin/bash выполняет 2 терминальных команды.
 
 Выполним его в терминале при помощи:
@@ -291,7 +289,6 @@ date >> ./when
 Теперь перейдём к созданию директорий
 
 Изменим `main.sh`:
-
 ```
 #!/bin/bash
 
@@ -303,7 +300,6 @@ ls -lai . > ./outputs/dirstat
 mv when ./outputs/when
 mv main.sh ./scripts/main.sh
 ```
-
 Выполнив текущую версию скрипта мы получим созданные папки командами `mkdir`.
 
 Скрипт `main.sh` станет недоступным после исполнения. Надо будет закрыть отсутствующий файл в VSCode и открыть его по пути `scripts/main.sh`.
@@ -311,13 +307,11 @@ mv main.sh ./scripts/main.sh
 Команда `mv` перемещает файл в другую директорию.
 
 Изменим `main.sh` ещё раз.
-
 ```
 #!/bin/bash
 
 ls -lai ../scripts >> ../outputs/dirstat
 ```
-
 И попробуем запустить из консоли `$ sh scripts/main.sh`
 
 <blockquote>
@@ -333,7 +327,6 @@ ls -lai ../scripts >> ../outputs/dirstat
 То есть, если попробовать выполнить `cd ../scripts` в терминале - то ничего не сработает.
 
 Потому перепишем файл `main.sh` следующим образом:
-
 ```
 #!/bin/bash
 SCRIPT=$(readlink -f "$0")
@@ -342,7 +335,6 @@ DIR=$(dirname "$SCRIPT")
 cd $DIR
 ls -lai ../scripts >> ../outputs/dirstat
 ```
-
 И запустим `$ sh scripts/main.sh`
 
 Итак, мы имеем на текущий момент проект в Visual Studio Code в котором есть один файл кода на языке shell в каталоге `scripts`, и 2 файла простого текста в каталоге `outputs`.
@@ -352,7 +344,6 @@ ls -lai ../scripts >> ../outputs/dirstat
 ### 4.4 Файловая система в Linux. А что вообще такое файл?
 
 Если взглянуть в финальный файл `dirstat`, который располагается в директории `outputs` то можно в нём увидеть содержание схожее с текущим.
-
 ```
 total 24
 97240 drwxr-xr-x  4 citrullux citrullux 4096 Oct 29 17:55 .
@@ -367,7 +358,6 @@ total 12
 97240 drwxr-xr-x 4 citrullux citrullux 4096 Oct 29 17:55 ..
 97252 -rw-r--r-- 1 citrullux citrullux  113 Oct 29 18:08 main.sh
 ```
-
 Давайте внимательно рассмотрим содержимое.
 
 ---
@@ -405,7 +395,6 @@ total 12
 27339 <font color="#FF5555">d</font>rwxr-xr-x  2 citrullux citrullux 4096 Oct 29 17:55 scripts
 
 Значения данного показателя могут быть следующими:
-
 ```
 - Обычные файлы
 d Каталоги
@@ -415,7 +404,6 @@ c Символьные устройства
 p Каналы
 s Сокеты
 ```
-
 И в данном случае `scripts` - это директория.
 
 Директория `scripts` вложена в директорию `ProjectOS`.
@@ -424,7 +412,6 @@ s Сокеты
 `.` и `..`
 
 Внутри директории `scripts` данные файлы выглядят следующим образом:
-
 ```
 27339 drwxr-xr-x 2 citrullux citrullux 4096 Oct 29 17:55 .
 97240 drwxr-xr-x 4 citrullux citrullux 4096 Oct 29 17:55 ..
@@ -432,14 +419,12 @@ s Сокеты
 Эти 2 файла являются директориями.
 
 А теперь рассмотрим директорию `ProjectOS`.
-
 ```
 total 24
 97240 drwxr-xr-x  4 citrullux citrullux 4096 Oct 29 17:55 .
 477 drwxr-x--- 30 citrullux citrullux 4096 Oct 28 17:50 ..
 27339 drwxr-xr-x  2 citrullux citrullux 4096 Oct 29 17:55 scripts
 ```
-
 В данном выводе мы видим, что директория `scripts` имеет индекс `27339`. А в самой директории `scripts` файл `.` имеет ровно такой-же индекс `27339`.
 
 Это значит что команда `$ cd scripts` выполненная в директории `ProjectOS` и команда `cd .` выполненная из директории `scripts` приведут к переходу в директорию `scripts`.
@@ -471,7 +456,6 @@ total 24
 #### 4.6.1 Задание
 
 Давайте вернёмся в наш редактор и продолжим изменять файл `main.sh`
-
 ```
 #!/bin/bash
 SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
@@ -494,11 +478,9 @@ cat globe >> ../outputs/links
 # Просматриваем состав директории
 ls -lai >> ../outputs/links
 ```
-
 Сохраним и исполним файл `$ sh scripts/main.sh`
 
 Теперь изменим файл `main.sh` следующим образом:
-
 ```
 #!/bin/bash
 SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
@@ -529,11 +511,9 @@ cat world >> ../outputs/links
 cat flat >> ../outputs/links
 cat globe >> ../outputs/links
 ```
-
 Сохраним и исполним файл `$ sh scripts/main.sh`
 
 Изменим файл `main.sh`
-
 ```
 #!/bin/bash
 SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
@@ -551,7 +531,6 @@ cat globe >> ../outputs/links
 # Просматриваем состав директории
 ls -lai >> ../outputs/links
 ```
-
 Сохраним и исполним файл `$ sh scripts/main.sh`
 
 Скорее всего в результате выполнения будет выдана ошибка:
@@ -585,28 +564,23 @@ ls -lai >> ../outputs/links
 Откройте в директории `data` файл `links`.
 
 По результатам выполнения задания, в файле находятся следующие строки:
-
 ```
 Hello world!
 Hello world!
 Hello world!
 ```
-первые 3 строки содержат в себе надпись "Hello world!". Это результат выполнения команд:
-
+Первые 3 строки содержат в себе надпись "Hello world!". Это результат выполнения команд:
 ```
 cat world > ../outputs/links
 cat flat >> ../outputs/links
 cat globe >> ../outputs/links
 ```
-
 Которые считывают данные из 3 файлов, world, flat и globe, далее обозначена выдача команды `ls -lai` в которой нас интересуют следующие строки:
-
 ```
 28332 -rw-r--r-- 2 citrullux citrullux   13 Nov  1 16:11 flat
 35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
 28332 -rw-r--r-- 2 citrullux citrullux   13 Nov  1 16:11 world
 ```
-
 Как можно понять файлы `world` и `flat` это один и тот же файл, поскольку индекс `28332` __совпадает__ для __обоих файлов__, и да, у вас этот индекс _скорее всего_ для обоих файлов будет также __одинаковым__, но другим.
 
 С другой стороны файл `globe` представляет из себя мягкую ссылку, у него иной индекс. А сам файл в `ls -lai` имеет тип `l` и обозначается как `globe -> world`, то есть файл `globe` ссылается на файл `world`, пока файл `world` продолжает существовать.
@@ -642,7 +616,6 @@ Place where human lives
 `echo "Place where human lives" > world`
 
 и считывания данных из файлов `world` `flat` и `globe`
-
 ```
 Is this flat?
 Is this flat?
@@ -651,7 +624,6 @@ Is this flat?
 Полученный в результате выполнения:
 
 `echo "Is this flat?" > flat`
-
 ```
 Think different
 Think different
@@ -660,7 +632,6 @@ Think different
 В результате `echo "Think different" > globe` соответственно.
 
 После удаления файла `world` получаем в выдаче только
-
 ```
 Ready to destroy
 ```
@@ -671,25 +642,20 @@ Ready to destroy
 28332 -rw-r--r-- 1 citrullux citrullux   17 Nov  1 17:44 flat
 35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
 ```
-
 Последний скрипт создавал новый файл world, с новым содержанием.
 
 В файле `links` имеем:
-
 ```
 This is another world
 Ready to destroy
 This is another world
 ```
-
 То есть содержимое файла `world` изменилось, и мягкая ссылка `globe` которая указывает на `world` теперь имеет то же самое содержимое. Содержимое файла `flat` как и его индекс не изменилось.
-
 ```
 28332 -rw-r--r-- 1 citrullux citrullux   17 Nov  1 17:44 flat
 35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
 28698 -rw-r--r-- 1 citrullux citrullux   22 Nov  2 09:40 world
 ```
-
 Как можно видеть индексы файлов `world` и `flat` отличаются, это разные файлы, изменения в одном из них не создают изменения в другом.
 
 ### 4.7 Файловая система в Linux. Права доступа
@@ -701,11 +667,9 @@ This is another world
 __Владелец__ - это __конкретный пользователь__, а __группа владельца__ - это все __пользователи__ входящие в определённую __группу__.
 
 Давайте взглянем на результат команды `ls -lai`
-
 ```
 28698 -rw-r--r-- 1 citrullux citrullux   22 Nov  2 09:40 world
 ```
-
 Давайте распределим по цвету. Тут представлены права для <font color="#FF5555">владельца</font>, <font color="#55FF55">группы</font> и <font color="#5555FF">всех остальных</font>.
 
 1280 -
@@ -755,7 +719,6 @@ __Владелец__ - это __конкретный пользователь__,
 Давайте рассмотрим работу с правами на нескольких примерах.
 
 Изменим файл `main.sh`
-
 ```
 #!/bin/bash
 
@@ -843,7 +806,6 @@ ls -lai ../scripts/ >> ../outputs/links
 ---
 
 Изменим файл `main.sh`
-
 ```
 #!/bin/bash
 
@@ -877,7 +839,6 @@ ls -lai >> ../outputs/links
 И выполним скрипт, теперь без `sh`, так как с прошлого исполнения файл можно исполнять сам по себе.
 
 `$ sudo ./scripts/main.sh`
-
 ```
 #!/bin/bash
 
@@ -900,7 +861,6 @@ cat globe >> ../outputs/links
 # Вывод содержимого директорий
 ls -lai >> ../outputs/links
 ```
-
 Давайте выполним без `sudo`
 
 `$ ./scripts/main.sh`
@@ -929,7 +889,6 @@ Ready to destroy
 `cat: world: Permission denied`
 
 Выдача второй стадии:
-
 ```
 This is not a planet?
 28332 ----rwx--- 1 citrullux citrullux   17 Nov  1 17:44 flat
@@ -937,13 +896,11 @@ This is not a planet?
 28698 -r-------- 1 citrullux citrullux   22 Nov  8 09:22 world
 97252 -rwxr-xr-x 1 citrullux citrullux  756 Nov  8 10:09 main.sh
 ```
-
 Теперь у файла `world` есть права на чтение, и мы смогли его прочитать. Но записать в него новые данные не получится. Файл `main.sh` получил возможность исполнения `x` посредством команды `chmod +x` то есть `+` это добавление, а `x` конкретное право, в данном случае исполнение, как можно понять право на исполнение было добавлено для всех уровней прав.
 
 Файл `flat` для группы `citrullux` имеет все права, но ни записать ни считать данные от пользователя `citrullux` не получилось, по очень простой причине: права пользователя важнее прав группы. А права пользователя говорят что возможностей чтения и записи нет.
 
 Выдача третей стадии:
-
 ```
 We are number one, but...
 How much continents?
@@ -952,18 +909,15 @@ How much continents?
 35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
 28698 -rwxrwx--- 1 root      root        21 Nov 12 13:14 world
 ```
-
 Поскольку мы исполняем скрипт от `sudo`, мы смогли записать новое содержимое в файлы `world` и `flat`, не смотря на то что мы передали владение файлами пользователю `root` и группе `root`. Ошибок при исполнении на этой стадии не было.
 
 Выдача четвёртой стадии:
-
 ```
 The greatest show on earth
 28332 -------rwx 1 root      root        27 Nov 12 13:22 flat
 35272 lrwxrwxrwx 1 citrullux citrullux    5 Nov  1 16:11 globe -> world
 28698 -rwxrwx--- 1 root      root        21 Nov 12 13:14 world
 ```
-
 Тут мы смогли записать и прочитать содержимое только файла `flat`, так как наш пользователь не относится к пользователю `root` и не входит в группу `root`. Файл `globe` как ссылка в теории может быть прочитан нашим пользователем, но указывает он на файл `world`, который недоступен для обычного пользователя, так что содержимое ээтих файлов обычному пользователю недоступно.
 
 
@@ -1097,7 +1051,6 @@ systemctl --user status lab.service >> daemon_state
 > Выполнение займёт примерно минуту, можно встать, походить по комнате, иногда это __стоит делать__ при сидячей работе.
 
 В файле daemon_state наблюдаем примерно следующее:
-
 ```
 ● lab.service - Lab first service
      Loaded: loaded (/home/citrullux/.config/systemd/user/lab.service; disabled; vendor preset: enabled)
@@ -1112,7 +1065,7 @@ systemctl --user status lab.service >> daemon_state
      Loaded: loaded (/home/citrullux/.config/systemd/user/lab.service; disabled; vendor preset: enabled)
      Active: inactive (dead)
 ```
-На считывании спустя 55 секунд от запуска демон уже переведён в статус `inactive` и выдаёт информацию в строке `Active` что уже не работает уже 10 секунд: `inactive (dead)`
+На считывании спустя 55 секунд от запуска демон уже переведён в статус `inactive` и выдаёт информацию в строке `Active` что уже не работает: `inactive (dead)`
 
 
 ## 6. Задание - Python, Bash и Systemctl
