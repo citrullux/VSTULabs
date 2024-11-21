@@ -1067,6 +1067,56 @@ systemctl --user status lab.service >> daemon_state
 ```
 На считывании спустя 55 секунд от запуска демон уже переведён в статус `inactive` и выдаёт информацию в строке `Active` что уже не работает: `inactive (dead)`
 
+Изменим `lab.service`
+```
+[Unit]
+Description=Lab first service
+
+[Service]
+Type=simple
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY='/run/user/1000/gdm/Xauthority'"
+ExecStart=remmina
+Restart=always
+
+[Install]
+WantedBy=default.target
+```
+
+Изменим `main.sh`
+```
+#!/bin/bash
+
+SCRIPT=$(readlink -f "$0") # Полный путь до скрипта
+DIR=$(dirname "$SCRIPT") # Директория нахождения скрипта
+
+cd $DIR # Переход в директорию скрипта
+cd .. # Переход в директорию проекта
+
+cd data
+
+# Избавляемся от содержимого
+cat /dev/null > daemon_state
+
+# Обновления списка демонов доступных системе
+systemctl --user daemon-reload
+
+# Запуск написанного нами демона
+systemctl --user start lab.service
+
+# Считываем статус демона посреди работы
+systemctl --user status lab.service >> daemon_state
+```
+
+Выполним: `$ ./scripts/main.sh`
+
+И попробуйте закрыть открывшееся окно remmina `;)`
+
+После того как приложение несколько раз перезапустится на попытке выйти из него, выполните в терминале:
+
+`$ systemctl --user stop lab.service`
+
+да, при помощи демонов можно создавать окно которое будет само по себе перезапускаться, неплохо работает для всяких терминалов самообслуживания, где нужно просто пользователю дать интерфейс, который не отключится.
 
 ## 6. Задание - Python, Bash и Systemctl
 
